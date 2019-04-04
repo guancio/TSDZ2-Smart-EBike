@@ -800,7 +800,7 @@ void TIM1_CAP_COM_IRQHandler(void) __interrupt(TIM1_CAP_COM_IRQHANDLER)
   ui16_pas_counter++;
 
   // detect PAS signal changes
-  if ((PAS1__PORT->IDR & PAS1__PIN) == 0)
+  if((PAS1__PORT->IDR & PAS1__PIN) == 0)
   {
     ui8_pas_state = 0;
   }
@@ -810,12 +810,12 @@ void TIM1_CAP_COM_IRQHandler(void) __interrupt(TIM1_CAP_COM_IRQHANDLER)
   }
 
   // PAS signal did change
-  if (ui8_pas_state != ui8_pas_state_old)
+  if(ui8_pas_state != ui8_pas_state_old)
   {
     ui8_pas_state_old = ui8_pas_state;
 
     // consider only when PAS signal transition from 0 to 1
-    if (ui8_pas_state == 1)
+    if(ui8_pas_state == 1)
     {
       // keep track of first pulse
       if(!ui8_pas_after_first_pulse)
@@ -839,11 +839,11 @@ void TIM1_CAP_COM_IRQHandler(void) __interrupt(TIM1_CAP_COM_IRQHANDLER)
         // see the direction
         if ((PAS2__PORT->IDR & PAS2__PIN) == 0)
         {
-          ui8_m_pedaling_forward = 0;
+          ui8_m_pedaling_direction = 2;
         }
         else
         {
-          ui8_m_pedaling_forward = 1;
+          ui8_m_pedaling_direction = 1;
         }
       }
     }
@@ -855,11 +855,11 @@ void TIM1_CAP_COM_IRQHandler(void) __interrupt(TIM1_CAP_COM_IRQHANDLER)
         // see the direction
         if ((PAS2__PORT->IDR & PAS2__PIN) != 0)
         {
-          ui8_m_pedaling_forward = 0;
+          ui8_m_pedaling_direction = 2;
         }
         else
         {
-          ui8_m_pedaling_forward = 1;
+          ui8_m_pedaling_direction = 1;
         }
       }
     }
@@ -896,7 +896,7 @@ void TIM1_CAP_COM_IRQHandler(void) __interrupt(TIM1_CAP_COM_IRQHANDLER)
     ui16_pas_pwm_cycles_ticks = (uint16_t) PAS_ABSOLUTE_MIN_CADENCE_PWM_CYCLE_TICKS;
     ui16_pas_counter = 0;
     ui8_pas_after_first_pulse = 0;
-    ui8_m_pedaling_forward = 1;
+    ui8_m_pedaling_direction = 0;
 
 //    ui16_torque_sensor_throttle_processed_value = 0;
   }
