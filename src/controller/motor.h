@@ -46,6 +46,8 @@ void motor_controller (void);
 uint8_t motor_get_adc_battery_current_filtered_10b (void);
 uint16_t motor_get_adc_battery_voltage_filtered_10b (void);
 void motor_set_adc_battery_voltage_cut_off (uint8_t ui8_value);
+void motor_enable_pwm(void);
+void motor_disable_pwm(void);
 /***************************************************************************************/
 
 #endif /* _MOTOR_H_ */

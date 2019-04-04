@@ -1197,3 +1197,64 @@ void motor_set_adc_battery_voltage_cut_off (uint8_t ui8_value)
 {
   ui8_adc_battery_voltage_cut_off = ui8_value;
 }
+
+void motor_enable_pwm(void)
+{
+  TIM1_OC1Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_ENABLE,
+         TIM1_OUTPUTNSTATE_ENABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+
+  TIM1_OC2Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_ENABLE,
+         TIM1_OUTPUTNSTATE_ENABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+
+  TIM1_OC3Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_ENABLE,
+         TIM1_OUTPUTNSTATE_ENABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+}
+
+void motor_disable_pwm(void)
+{
+  TIM1_OC1Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_DISABLE,
+         TIM1_OUTPUTNSTATE_DISABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+
+  TIM1_OC2Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_DISABLE,
+         TIM1_OUTPUTNSTATE_DISABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+
+  TIM1_OC3Init(TIM1_OCMODE_PWM1,
+         TIM1_OUTPUTSTATE_DISABLE,
+         TIM1_OUTPUTNSTATE_DISABLE,
+         255, // initial duty_cycle value
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCPOLARITY_HIGH,
+         TIM1_OCIDLESTATE_RESET,
+         TIM1_OCIDLESTATE_SET);
+
+}
