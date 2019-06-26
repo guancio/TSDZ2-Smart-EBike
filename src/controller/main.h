@@ -9,6 +9,7 @@
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
+#include "platform.h"
 #include "config.h"
 
 //#define DEBUG_UART
@@ -173,6 +174,8 @@
 // motor temperature filter coefficient 
 #define READ_MOTOR_TEMPERATURE_FILTER_COEFFICIENT                 4
 
+void main_setup(void);
+void main_loop(void);
 
 
 #endif // _MAIN_H_

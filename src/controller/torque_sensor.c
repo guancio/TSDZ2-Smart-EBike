@@ -6,6 +6,8 @@
  * Released under the GPL License, Version 3
  */
 
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "stm8s_gpio.h"
 #include "pins.h"
@@ -17,6 +19,4 @@ void torque_sensor_init (void)
 	    TORQUE_SENSOR_EXCITATION__PIN,
 	    GPIO_MODE_OUT_OD_HIZ_FAST);
 }
-
-
-
+#endif

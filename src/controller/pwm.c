@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s_tim1.h"
 #include "stm8s_flash.h"
 #include "interrupts.h"
@@ -92,3 +94,4 @@ void pwm_init_bipolar_4q (void)
   TIM1_Cmd(ENABLE); // TIM1 counter enable
   TIM1_CtrlPWMOutputs(ENABLE);
 }
+#endif

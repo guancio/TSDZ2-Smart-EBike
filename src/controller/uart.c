@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "stm8s_uart2.h"
 #include "main.h"
@@ -67,3 +69,4 @@ int getchar(void)
 
   return (c);
 }
+#endif

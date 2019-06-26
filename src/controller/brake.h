@@ -9,6 +9,7 @@
 #ifndef _BRAKE_H
 #define _BRAKE_H
 
+#include "platform.h"
 #include "main.h"
 
 void brake_init (void);

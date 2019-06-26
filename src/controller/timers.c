@@ -6,6 +6,8 @@
  * Released under the GPL License, Version 3
  */
 
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "stm8s_tim2.h"
 
@@ -43,3 +45,4 @@ void timer3_init (void)
   // IMPORTANT: this software delay is needed so timer3 work after this
   for(ui16_i = 0; ui16_i < (65000); ui16_i++) { ; }
 }
+#endif

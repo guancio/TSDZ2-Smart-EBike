@@ -9,21 +9,34 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "interrupts.h"
-#include "stm8s.h"
-#include "pins.h"
-#include "uart.h"
-#include "pwm.h"
-#include "motor.h"
-#include "wheel_speed_sensor.h"
+#include "platform.h"
+#ifdef PLATFORM_STM
+  #include "stm8s.h"
+  #include "pins.h"
+  #include "uart.h"
+  #include "pwm.h"
+  #include "motor.h"
+  #include "wheel_speed_sensor.h"
+#endif
+#ifdef PLATFORM_ARDUINO
+  #include <Arduino.h>
+#endif
 #include "brake.h"
-#include "pas.h"
+#ifdef PLATFORM_STM
+  #include "pas.h"
+#endif
 #include "adc.h"
-#include "timers.h"
+#ifdef PLATFORM_STM
+  #include "timers.h"
+#endif
 #include "ebike_app.h"
-#include "torque_sensor.h"
+#ifdef PLATFORM_STM
+  #include "torque_sensor.h"
+#endif
 #include "eeprom.h"
 #include "lights.h"
 
+#ifdef PLATFORM_STM
 /////////////////////////////////////////////////////////////////////////////////////////////
 //// Functions prototypes
 
@@ -54,9 +67,11 @@ void UART2_IRQHandler(void) __interrupt(UART2_IRQHANDLER);
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+#endif
 
-int main (void)
+void main_setup(void)
 {
+#ifdef PLATFORM_STM
   uint16_t ui16_TIM3_counter = 0;
   uint16_t ui16_ebike_app_controller_counter = 0;
   uint16_t ui16_motor_controller_counter = 0;
@@ -66,23 +81,47 @@ int main (void)
 
   //set clock at the max 16MHz
   CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
-
+#endif
+#ifdef PLATFORM_ARDUINO
+  noInterrupts();
+#endif
   brake_init();
   while (brake_is_set()) ; // hold here while brake is pressed -- this is a protection for development
   eeprom_init();
+
+#ifdef PLATFORM_STM
   lights_init();
   uart2_init();
   timer2_init();
   timer3_init();
+#endif
   adc_init();
+#ifdef PLATFORM_STM
   torque_sensor_init();
   pas_init();
   wheel_speed_sensor_init();
   hall_sensor_init();
   pwm_init_bipolar_4q();
   motor_init();
+#endif
   ebike_app_init();
+#ifdef PLATFORM_STM
   enableInterrupts();
+#endif
+#ifdef PLATFORM_ARDUINO
+  interrupts();
+#endif
+}
+
+void main_loop(void)
+{
+  ebike_app_controller();
+}
+
+#ifdef PLATFORM_STM
+int main (void)
+{
+  main_setup();
 
   while(1)
   {
@@ -100,7 +139,7 @@ int main (void)
     if((ui16_TIM3_counter - ui16_ebike_app_controller_counter) > 100) // every 100ms
     {
       ui16_ebike_app_controller_counter = ui16_TIM3_counter;
-      ebike_app_controller();
+      main_loop();
       continue;
     }
 
@@ -126,3 +165,4 @@ int main (void)
 
   return 0;
 }
+#endif

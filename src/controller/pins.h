@@ -9,6 +9,8 @@
 #ifndef _PINS_H_
 #define _PINS_H_
 
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s_gpio.h"
 
 /* Connections:
@@ -120,5 +122,22 @@
 
 #define BATTERY_CURRENT__PORT     GPIOB
 #define BATTERY_CURRENT__PIN      GPIO_PIN_5
+
+#endif
+
+#ifdef PLATFORM_ARDUINO
+/* Connections:
+ *
+ * PIN                | IN/OUT|Function
+ * ----------------------------------------------------------
+ * PIN2               | in  | brake
+ * PIN44              | out | lights. Enable/disable 5V output of the circuit that powers the lights wire of 6V.
+ * A3                 | in  | analog throttle
+ */
+
+#define BRAKE__PIN                2
+#define LIGHTS__PIN                44
+#define THROTTLE__PIN              A3
+#endif
 
 #endif /* _PINS_H_ */

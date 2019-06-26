@@ -7,11 +7,20 @@
  */
 
 #include <stdint.h>
-#include "stm8s.h"
-#include "stm8s_it.h"
+#include "platform.h"
+#ifdef PLATFORM_STM
+  #include "stm8s.h"
+  #include "stm8s_it.h"
+#endif
+#ifdef PLATFORM_ARDUINO
+  #include <Arduino.h>
+  #define __interrupt(A)
+#endif
 #include "pins.h"
-#include "main.h"
-#include "interrupts.h"
+#ifdef PLATFORM_STM
+  #include "main.h"
+  #include "interrupts.h"
+#endif
 #include "brake.h"
 #include "motor.h"
 
@@ -31,20 +40,14 @@ void EXTI_PORTC_IRQHandler(void) __interrupt(EXTI_PORTC_IRQHANDLER)
 void brake_init (void)
 {
   //brake pin as external input pin interrupt
-  GPIO_Init(BRAKE__PORT,
-	    BRAKE__PIN,
-	    GPIO_MODE_IN_FL_IT); // with external interrupt
-
   //initialize the Interrupt sensitivity
-  EXTI_SetExtIntSensitivity(EXTI_PORT_GPIOC,
-			    EXTI_SENSITIVITY_RISE_FALL);
+  ATTACH_INTERRUPT(BRAKE__PORT, BRAKE__PIN, EXTI_SENSITIVITY_RISE_FALL, EXTI_PORT_GPIOC, EXTI_PORTC_IRQHandler);
 }
 
 BitStatus brake_is_set(void)
 {
-  if (GPIO_ReadInputPin(BRAKE__PORT, BRAKE__PIN) == 0)
+  if (READ_DIGITAL(BRAKE__PORT, BRAKE__PIN) == 0)
     return 1;
   else
     return 0;
 }
-

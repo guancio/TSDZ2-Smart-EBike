@@ -7,6 +7,8 @@
  */
 
 #include <stdint.h>
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "pins.h"
 #include "stm8s_gpio.h"
@@ -27,3 +29,4 @@ void lights_set_state (uint8_t ui8_state)
     GPIO_WriteLow (LIGHTS__PORT, LIGHTS__PIN);
   }
 }
+#endif

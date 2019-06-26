@@ -7,6 +7,8 @@
  */
 
 #include <stdint.h>
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "pins.h"
 
@@ -22,4 +24,4 @@ void pas_init (void)
       PAS2__PIN,
       GPIO_MODE_IN_PU_NO_IT); // input pull-up, no external interrupt
 }
-
+#endif

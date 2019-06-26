@@ -7,8 +7,11 @@
  */
 
 #include <stdint.h>
-#include "stm8s.h"
-#include "stm8s_flash.h"
+#include "platform.h"
+#ifdef PLATFORM_STM
+  #include "stm8s.h"
+  #include "stm8s_flash.h"
+#endif
 #include "eeprom.h"
 #include "ebike_app.h"
 
@@ -41,7 +44,7 @@ void eeprom_init (void)
 
   // start by reading address 0 and see if value is different from our key,
   // if so mean that eeprom memory is clean and we need to populate: should happen after erasing the microcontroller
-  ui8_data = FLASH_ReadByte (ADDRESS_KEY);
+  ui8_data = EEPROM_READ (ADDRESS_KEY);
   
   // verify our key exists
   if (ui8_data != KEY) 
@@ -53,7 +56,7 @@ void eeprom_init (void)
 
 void eeprom_init_variables (void)
 {
-  struct_configuration_variables *p_configuration_variables;
+  volatile struct_configuration_variables *p_configuration_variables;
   p_configuration_variables = get_configuration_variables ();
 
   eeprom_read_values_to_variables ();
@@ -80,38 +83,38 @@ static void eeprom_read_values_to_variables (void)
   static uint8_t ui8_temp;
   static uint16_t ui16_temp;
 
-  struct_configuration_variables *p_configuration_variables;
+  volatile struct_configuration_variables *p_configuration_variables;
   p_configuration_variables = get_configuration_variables ();
 
-  p_configuration_variables->ui8_assist_level_factor_x10 = FLASH_ReadByte (ADDRESS_ASSIST_LEVEL_FACTOR_X10);
+  p_configuration_variables->ui8_assist_level_factor_x10 = EEPROM_READ (ADDRESS_ASSIST_LEVEL_FACTOR_X10);
 
-  ui8_temp = FLASH_ReadByte (ADDRESS_CONFIG_0);
+  ui8_temp = EEPROM_READ (ADDRESS_CONFIG_0);
   p_configuration_variables->ui8_lights = ui8_temp & 1 ? 1 : 0;
   p_configuration_variables->ui8_walk_assist = ui8_temp & (1 << 1) ? 1 : 0;
 
-  p_configuration_variables->ui8_battery_max_current = FLASH_ReadByte (ADDRESS_BATTERY_MAX_CURRENT);
-  p_configuration_variables->ui8_motor_power_x10 = FLASH_ReadByte (ADDRESS_MOTOR_POWER_X10);
+  p_configuration_variables->ui8_battery_max_current = EEPROM_READ (ADDRESS_BATTERY_MAX_CURRENT);
+  p_configuration_variables->ui8_motor_power_x10 = EEPROM_READ (ADDRESS_MOTOR_POWER_X10);
   
   // battery low cut off voltage
-  ui16_temp = FLASH_ReadByte (ADDRESS_BATTERY_LOW_VOLTAGE_CUT_OFF_X10_0);
-  ui8_temp = FLASH_ReadByte (ADDRESS_BATTERY_LOW_VOLTAGE_CUT_OFF_X10_1);
+  ui16_temp = EEPROM_READ (ADDRESS_BATTERY_LOW_VOLTAGE_CUT_OFF_X10_0);
+  ui8_temp = EEPROM_READ (ADDRESS_BATTERY_LOW_VOLTAGE_CUT_OFF_X10_1);
   ui16_temp += (((uint16_t) ui8_temp << 8) & 0xff00);
   p_configuration_variables->ui16_battery_low_voltage_cut_off_x10 = ui16_temp;
   
   // wheel perimeter
-  ui16_temp = FLASH_ReadByte (ADDRESS_WHEEL_PERIMETER_0);
-  ui8_temp = FLASH_ReadByte (ADDRESS_WHEEL_PERIMETER_1);
+  ui16_temp = EEPROM_READ (ADDRESS_WHEEL_PERIMETER_0);
+  ui8_temp = EEPROM_READ (ADDRESS_WHEEL_PERIMETER_1);
   ui16_temp += (((uint16_t) ui8_temp << 8) & 0xff00);
   p_configuration_variables->ui16_wheel_perimeter = ui16_temp;
 
-  p_configuration_variables->ui8_wheel_max_speed = FLASH_ReadByte (ADDRESS_WHEEL_MAX_SPEED);
+  p_configuration_variables->ui8_wheel_max_speed = EEPROM_READ (ADDRESS_WHEEL_MAX_SPEED);
 
-  ui8_temp = FLASH_ReadByte (ADDRESS_CONFIG_1);
+  ui8_temp = EEPROM_READ (ADDRESS_CONFIG_1);
   p_configuration_variables->ui8_motor_type = ui8_temp & 3;
   p_configuration_variables->ui8_motor_assistance_startup_without_pedal_rotation = (ui8_temp & 4) >> 2;
   
   // ramp up, amps per second
-  p_configuration_variables->ui8_ramp_up_amps_per_second_x10 = FLASH_ReadByte (ADDRESS_RAMP_UP_AMPS_PER_SECOND_X10);
+  p_configuration_variables->ui8_ramp_up_amps_per_second_x10 = EEPROM_READ (ADDRESS_RAMP_UP_AMPS_PER_SECOND_X10);
 }
 
 
@@ -125,7 +128,7 @@ void eeprom_write_variables (void)
 
 static void variables_to_array (uint8_t *ui8_array)
 {
-  struct_configuration_variables *p_configuration_variables;
+  volatile struct_configuration_variables *p_configuration_variables;
   p_configuration_variables = get_configuration_variables ();
 
   ui8_array [0] = KEY;
@@ -149,21 +152,16 @@ static void eeprom_write_array (uint8_t *array)
 {
   uint8_t ui8_i;
 
-  FLASH_SetProgrammingTime(FLASH_PROGRAMTIME_STANDARD);
-  
-  // unlock data memory 
-  FLASH_Unlock (FLASH_MEMTYPE_DATA); 
-  
-  // wait until data EEPROM area unlocked flag is set
-  while (FLASH_GetFlagStatus(FLASH_FLAG_DUL) == RESET) { } 
+  // unlock data memory
+  EEPROM_UNLOCK();
 
   for (ui8_i = 0; ui8_i < EEPROM_BYTES_STORED; ui8_i++)
   {
-    FLASH_ProgramByte (EEPROM_BASE_ADDRESS + ui8_i, *array++);
+    EEPROM_WRITE (EEPROM_BASE_ADDRESS + ui8_i, *array++);
   }
   
   // lock data memory 
-  FLASH_Lock (FLASH_MEMTYPE_DATA);
+  EEPROM_LOCK();
 }
 
 
@@ -182,7 +180,7 @@ void eeprom_write_if_values_changed (void)
 //  ui8_index = 1; // do not verify the first byte: ADDRESS_KEY
 //  while (ui8_index < EEPROM_BYTES_STORED)
 //  {
-//    if (array_variables [ui8_index] != FLASH_ReadByte (EEPROM_BASE_ADDRESS + ui8_index))
+//    if (array_variables [ui8_index] != EEPROM_READ (EEPROM_BASE_ADDRESS + ui8_index))
 //    {
 //      eeprom_write_array (array_variables);
 //      break; // exit the while loop

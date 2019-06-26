@@ -6,6 +6,8 @@
  * Released under the GPL License, Version 3
  */
 
+#include"platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "stm8s_clk.h"
 #include "stm8s_iwdg.h"
@@ -32,3 +34,4 @@ void watchdog_init (void)
   IWDG_SetReload (255); // ~16ms
   IWDG_ReloadCounter ();
 }
+#endif

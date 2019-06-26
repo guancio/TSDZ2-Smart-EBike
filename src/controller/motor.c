@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include "motor.h"
 #include "interrupts.h"
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s_gpio.h"
 #include "stm8s_tim1.h"
 #include "motor.h"
@@ -366,8 +368,11 @@ uint8_t ui8_interpolation_angle = 0;
 uint16_t ui16_foc_angle_accumulated = 0;
 
 uint8_t ui8_motor_commutation_type = BLOCK_COMMUTATION;
+#endif
+
 volatile uint8_t ui8_motor_controller_state = MOTOR_CONTROLLER_STATE_OK;
 
+#ifdef PLATFORM_STM
 uint8_t ui8_hall_sensors_state = 0;
 uint8_t ui8_hall_sensors_state_last = 0;
 
@@ -982,6 +987,7 @@ void motor_enable_PWM (void)
 {
   TIM1_CtrlPWMOutputs(ENABLE);
 }
+#endif
 
 void motor_controller_set_state (uint8_t ui8_state)
 {
@@ -993,6 +999,7 @@ void motor_controller_reset_state (uint8_t ui8_state)
   ui8_motor_controller_state &= ~ui8_state;
 }
 
+#ifdef PLATFORM_STM
 uint8_t motor_controller_state_is_set (uint8_t ui8_state)
 {
   return ui8_motor_controller_state & ui8_state;
@@ -1256,3 +1263,4 @@ void motor_disable_pwm(void)
          TIM1_OCIDLESTATE_SET);
 
 }
+#endif

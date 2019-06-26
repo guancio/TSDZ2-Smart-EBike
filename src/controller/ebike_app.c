@@ -9,15 +9,21 @@
 #include "ebike_app.h"
 #include <stdint.h>
 #include <stdio.h>
+#include "platform.h"
+
+#ifdef PLATFORM_STM
 #include "stm8s.h"
 #include "stm8s_gpio.h"
+#endif
 #include "main.h"
 #include "interrupts.h"
 #include "adc.h"
 #include "utils.h"
 #include "motor.h"
 #include "pwm.h"
+#ifdef PLATFORM_STM
 #include "uart.h"
+#endif
 #include "brake.h"
 #include "eeprom.h"
 #include "config.h"
@@ -61,6 +67,8 @@ volatile uint8_t  ui8_adc_target_battery_max_current;
 uint8_t           ui8_adc_battery_current_max;
 volatile uint16_t ui16_current_ramp_up_inverse_step;
 
+#ifdef PLATFORM_STM
+
 
 // variables for walk assist
 uint8_t ui8_m_walk_assist_target_duty_cycle = 0;
@@ -99,6 +107,7 @@ volatile uint8_t ui8_message_ID = 0;
 static void communications_controller (void);
 static void uart_receive_package (void);
 static void uart_send_package (void);
+#endif
 
 // system functions
 static void ebike_control_motor (void);
@@ -120,7 +129,7 @@ static void apply_walk_assist(uint8_t *ui8_p_adc_target_current);
 static void apply_cruise (uint8_t *ui8_target_current);
 static void apply_throttle(uint8_t ui8_throttle_value, uint8_t *ui8_target_current);
 
-
+#ifdef PLATFORM_STM
 // BOOST
 uint8_t   ui8_startup_boost_enable = 0;
 uint8_t   ui8_startup_boost_fade_enable = 0;
@@ -135,6 +144,7 @@ static uint8_t  apply_boost (uint8_t ui8_pas_cadence, uint8_t ui8_max_current_bo
 static void     apply_boost_fade_out (uint8_t *ui8_target_current);
 
 
+#endif
 
 void ebike_app_init (void)
 {
@@ -143,10 +153,10 @@ void ebike_app_init (void)
   ebike_app_set_battery_max_current (ADC_BATTERY_CURRENT_MAX);
 }
 
-
 void ebike_app_controller (void)
 {
   throttle_read();
+#ifdef PLATFORM_STM
   torque_sensor_read();
   read_pas_cadence();
   calc_pedal_force_and_torque();
@@ -155,9 +165,11 @@ void ebike_app_controller (void)
   ebike_control_motor();
   communications_controller();
   check_system();
+#endif
 }
 
 
+#ifdef PLATFORM_STM
 static void ebike_control_motor (void)
 {
   static uint32_t ui32_temp;
@@ -654,6 +666,7 @@ static void ebike_app_set_target_adc_battery_max_current (uint8_t ui8_value)
   ui8_adc_target_battery_max_current = ui8_adc_battery_current_offset + ui8_value;
 }
 
+#endif
 
 // in amps
 static void ebike_app_set_battery_max_current(uint8_t ui8_value)
@@ -664,7 +677,7 @@ static void ebike_app_set_battery_max_current(uint8_t ui8_value)
   if (ui8_adc_battery_current_max > ADC_BATTERY_CURRENT_MAX) { ui8_adc_battery_current_max = ADC_BATTERY_CURRENT_MAX; }
 }
 
-
+#ifdef PLATFORM_STM
 static void calc_pedal_force_and_torque(void)
 {
   uint16_t ui16_pedal_torque_x100;
@@ -1088,18 +1101,19 @@ static void torque_sensor_read(void)
   }
 }
 
+#endif
 
 static void throttle_read (void)
 {
   // map value from 0 up to 255
-  ui8_throttle =  (uint8_t) (map (UI8_ADC_THROTTLE,
-                                 (uint8_t) ADC_THROTTLE_MIN_VALUE,
-                                 (uint8_t) ADC_THROTTLE_MAX_VALUE,
+  ui8_throttle =  (uint8_t) (map (ui16_adc_read_throttle_10b(),
+                                 ADC_THROTTLE_MIN_VALUE,
+                                 ADC_THROTTLE_MAX_VALUE,
                                  (uint8_t) 0,
                                  (uint8_t) 255));
 }
 
-
+#ifdef PLATFORM_STM
 // This is the interrupt that happens when UART2 receives data. We need it to be the fastest possible and so
 // we do: receive every byte and assembly as a package, finally, signal that we have a package to process (on main slow loop)
 // and disable the interrupt. The interrupt should be enable again on main loop, after the package being processed
@@ -1149,13 +1163,14 @@ void UART2_IRQHandler(void) __interrupt(UART2_IRQHANDLER)
   }
 }
 
+#endif
 
-struct_configuration_variables* get_configuration_variables (void)
+volatile struct_configuration_variables* get_configuration_variables (void)
 {
   return &m_configuration_variables;
 }
 
-
+#ifdef PLATFORM_STM
 void check_system()
 {
   #define MOTOR_BLOCKED_COUNTER_THRESHOLD             30    // 30  =>  3 seconds
@@ -1207,3 +1222,5 @@ void check_system()
     }
   }
 }
+
+#endif

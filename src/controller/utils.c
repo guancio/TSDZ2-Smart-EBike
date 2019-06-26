@@ -8,7 +8,10 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include "platform.h"
+#ifdef PLATFORM_STM
 #include "stm8s.h"
+#endif
 #include "utils.h"
 
 int32_t map (int32_t x, int32_t in_min, int32_t in_max, int32_t out_min, int32_t out_max)
@@ -56,6 +59,7 @@ void ui8_limit_max (uint8_t *ui8_p_value, uint8_t ui8_max_value)
   if (*ui8_p_value > ui8_max_value) { *ui8_p_value = ui8_max_value; }
 }
 
+#ifdef PLATFORM_STM
 void pi_controller (struct_pi_controller_state *pi_controller)
 {
   int16_t i16_error;
@@ -101,3 +105,4 @@ void crc16(uint8_t ui8_data, uint16_t* ui16_crc)
             *ui16_crc >>= 1;
     }
 }
+#endif

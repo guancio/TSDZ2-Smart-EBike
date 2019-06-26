@@ -6,11 +6,17 @@
  * Released under the GPL License, Version 3
  */
 
+#include "platform.h"
 #include <stdint.h>
 #include <stdio.h>
+#ifdef PLATFORM_STM
 #include "stm8s.h"
-#include "pins.h"
 #include "stm8s_adc1.h"
+#endif
+#ifdef PLATFORM_ARDUINO
+#include <Arduino.h>
+#endif
+#include "pins.h"
 #include "adc.h"
 #include "ebike_app.h"
 #include "motor.h"
@@ -24,6 +30,7 @@ void adc_init (void)
   uint16_t ui16_adc_torque_sensor_offset;
   uint8_t ui8_i;
 
+#ifdef PLATFORM_STM
   //init GPIO for the used ADC pins
   GPIO_Init(GPIOB,
 	    (GPIO_PIN_7 | GPIO_PIN_6 | GPIO_PIN_5 | GPIO_PIN_3),
@@ -41,7 +48,12 @@ void adc_init (void)
 
   ADC1_ScanModeCmd(ENABLE);
   ADC1_Cmd(ENABLE);
+#endif
+#ifdef PLATFORM_ARDUINO
+  pinMode(THROTTLE__PIN, INPUT);
+#endif
 
+#ifdef PLATFORM_STM
   //********************************************************************************
   // next code is for "calibrating" the offset value of some ADC channels
 
@@ -82,8 +94,10 @@ void adc_init (void)
 
   ui8_g_adc_torque_sensor_min_value = ((uint8_t) ui16_adc_torque_sensor_offset) + ADC_TORQUE_SENSOR_THRESHOLD;
   ui8_g_adc_torque_sensor_max_value = ui8_g_adc_torque_sensor_min_value + 32;
+#endif
 }
 
+#ifdef PLATFORM_STM
 static void adc_trigger (void)
 {
   // trigger ADC conversion of all channels (scan conversion, buffered)
@@ -124,9 +138,11 @@ uint16_t ui16_adc_read_torque_sensor_10b (void)
 
   return ((uint16_t) temph) << 2 | ((uint16_t) templ);
 }
+#endif
 
 uint16_t ui16_adc_read_throttle_10b (void)
 {
+#ifdef PLATFORM_STM
   uint16_t temph;
   uint8_t templ;
 
@@ -134,8 +150,13 @@ uint16_t ui16_adc_read_throttle_10b (void)
   temph = *(uint8_t*)(0x53EE);
 
   return ((uint16_t) temph) << 2 | ((uint16_t) templ);
+#endif
+#ifdef PLATFORM_ARDUINO
+  return analogRead(THROTTLE__PIN);
+#endif
 }
 
+#ifdef PLATFORM_STM
 uint16_t ui16_adc_read_battery_voltage_10b (void)
 {
   uint16_t temph;
@@ -146,4 +167,4 @@ uint16_t ui16_adc_read_battery_voltage_10b (void)
 
   return ((uint16_t) temph) << 2 | ((uint16_t) templ);
 }
-
+#endif
