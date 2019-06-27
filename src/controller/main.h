@@ -30,12 +30,9 @@
 #define MOTOR_ROTOR_ANGLE_30                      (20  + MOTOR_ROTOR_OFFSET_ANGLE)
 
 
-
 // motor maximum rotation
 #define MOTOR_OVER_SPEED_ERPS                     520 // motor max speed, protection max value | 30 points for the sinewave at max speed
 #define MOTOR_OVER_SPEED_ERPS_EXPERIMENTAL        700 // experimental motor speed to allow a higher cadence
-
-
 
 // throttle
 #define THROTTLE_FILTER_COEFFICIENT               1   // see note below

@@ -11,21 +11,20 @@
 #include "motor.h"
 #include "interrupts.h"
 #include "platform.h"
-#ifdef PLATFORM_STM
-#include "stm8s_gpio.h"
-#include "stm8s_tim1.h"
 #include "motor.h"
 #include "ebike_app.h"
-#include "pins.h"
 #include "pwm.h"
 #include "config.h"
 #include "adc.h"
 #include "utils.h"
+#ifdef PLATFORM_STM
 #include "uart.h"
+#endif
 #include "adc.h"
 #include "watchdog.h"
 #include "math.h"
 
+#ifdef PLATFORM_STM
 #define SVM_TABLE_LEN   256
 #define SIN_TABLE_LEN   60
 
@@ -352,6 +351,7 @@ uint8_t ui8_sin_table [SIN_TABLE_LEN] =
     126 ,
     127
 };
+#endif
 
 uint16_t ui16_PWM_cycles_counter = 1;
 uint16_t ui16_PWM_cycles_counter_6 = 1;
@@ -368,11 +368,9 @@ uint8_t ui8_interpolation_angle = 0;
 uint16_t ui16_foc_angle_accumulated = 0;
 
 uint8_t ui8_motor_commutation_type = BLOCK_COMMUTATION;
-#endif
 
 volatile uint8_t ui8_motor_controller_state = MOTOR_CONTROLLER_STATE_OK;
 
-#ifdef PLATFORM_STM
 uint8_t ui8_hall_sensors_state = 0;
 uint8_t ui8_hall_sensors_state_last = 0;
 
@@ -402,6 +400,7 @@ uint16_t ui16_adc_battery_voltage_filtered_10b;
 uint16_t ui16_adc_battery_current_accumulated = 0;
 uint8_t ui8_adc_battery_current_filtered_10b;
 
+#ifdef PLATFORM_STM
 
 uint16_t ui16_adc_battery_current_10b;
 volatile uint8_t ui8_g_adc_battery_current;
@@ -1044,11 +1043,14 @@ void motor_set_phase_current_max (uint8_t ui8_value)
   ui8_adc_target_motor_phase_max_current = ui8_g_adc_motor_phase_current_offset + ui8_value;
 }
 
+#endif
+
 uint16_t ui16_motor_get_motor_speed_erps (void)
 {
   return ui16_motor_speed_erps;
 }
 
+#ifdef PLATFORM_STM
 
 void read_battery_voltage (void)
 {
@@ -1193,11 +1195,14 @@ uint8_t motor_get_adc_battery_current_filtered_10b (void)
   return ui8_adc_battery_current_filtered_10b;
 }
 
+#endif
+
 uint16_t motor_get_adc_battery_voltage_filtered_10b (void)
 {
   return ui16_adc_battery_voltage_filtered_10b;
 }
 
+#ifdef PLATFORM_STM
 void motor_set_adc_battery_voltage_cut_off (uint8_t ui8_value)
 {
   ui8_adc_battery_voltage_cut_off = ui8_value;

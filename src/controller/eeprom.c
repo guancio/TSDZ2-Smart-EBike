@@ -8,10 +8,6 @@
 
 #include <stdint.h>
 #include "platform.h"
-#ifdef PLATFORM_STM
-  #include "stm8s.h"
-  #include "stm8s_flash.h"
-#endif
 #include "eeprom.h"
 #include "ebike_app.h"
 

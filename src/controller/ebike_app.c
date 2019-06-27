@@ -62,7 +62,6 @@ volatile uint8_t  ui8_adc_target_battery_max_current;
 uint8_t           ui8_adc_battery_current_max;
 volatile uint16_t ui16_current_ramp_up_inverse_step;
 
-#ifdef PLATFORM_STM
 
 
 // variables for walk assist
@@ -84,6 +83,7 @@ static uint16_t     ui16_wheel_speed_x10;
 volatile uint32_t   ui32_wheel_speed_sensor_tick_counter = 0;
 
 
+#ifdef PLATFORM_STM
 // UART
 #define UART_NUMBER_DATA_BYTES_TO_RECEIVE   6   // change this value depending on how many data bytes there is to receive ( Package = one start byte + data bytes + two bytes 16 bit CRC )
 #define UART_NUMBER_DATA_BYTES_TO_SEND      25  // change this value depending on how many data bytes there is to send ( Package = one start byte + data bytes + two bytes 16 bit CRC )
@@ -124,7 +124,6 @@ static void apply_walk_assist(uint8_t *ui8_p_adc_target_current);
 static void apply_cruise (uint8_t *ui8_target_current);
 static void apply_throttle(uint8_t ui8_throttle_value, uint8_t *ui8_target_current);
 
-#ifdef PLATFORM_STM
 // BOOST
 uint8_t   ui8_startup_boost_enable = 0;
 uint8_t   ui8_startup_boost_fade_enable = 0;
@@ -138,8 +137,6 @@ static void     boost_run_statemachine (void);
 static uint8_t  apply_boost (uint8_t ui8_pas_cadence, uint8_t ui8_max_current_boost_state, uint8_t *ui8_target_current);
 static void     apply_boost_fade_out (uint8_t *ui8_target_current);
 
-
-#endif
 
 void ebike_app_init (void)
 {
@@ -157,14 +154,15 @@ void ebike_app_controller (void)
   calc_pedal_force_and_torque();
   calc_wheel_speed();
   calc_motor_temperature();
+#endif
   ebike_control_motor();
+#ifdef PLATFORM_STM
   communications_controller();
   check_system();
 #endif
 }
 
 
-#ifdef PLATFORM_STM
 static void ebike_control_motor (void)
 {
   static uint32_t ui32_temp;
@@ -375,6 +373,7 @@ static void ebike_control_motor (void)
     motor_set_pwm_duty_cycle_target(0);
   }
 }
+#ifdef PLATFORM_STM
 
 
 static void communications_controller (void)
@@ -651,7 +650,7 @@ static void uart_send_package(void)
   }
 }
 
-
+#endif
 // each 1 unit = 0.625 amps
 static void ebike_app_set_target_adc_battery_max_current (uint8_t ui8_value)
 {
@@ -660,8 +659,6 @@ static void ebike_app_set_target_adc_battery_max_current (uint8_t ui8_value)
 
   ui8_adc_target_battery_max_current = ui8_adc_battery_current_offset + ui8_value;
 }
-
-#endif
 
 // in amps
 static void ebike_app_set_battery_max_current(uint8_t ui8_value)
@@ -735,13 +732,13 @@ static void calc_motor_temperature(void)
   m_configuration_variables.ui8_motor_temperature = (uint8_t) (m_configuration_variables.ui16_motor_temperature_x2 >> 1);
 }
 
+#endif
 
 static uint16_t calc_filtered_battery_voltage (void)
 {
   uint16_t ui16_batt_voltage_filtered = (uint16_t) motor_get_adc_battery_voltage_filtered_10b () * ADC10BITS_BATTERY_VOLTAGE_PER_ADC_STEP_X512;
   return (ui16_batt_voltage_filtered >> 9);
 }
-
 
 static void apply_speed_limit(uint16_t ui16_speed_x10, uint8_t ui8_max_speed, uint8_t *ui8_target_current)
 {
@@ -751,7 +748,6 @@ static void apply_speed_limit(uint16_t ui16_speed_x10, uint8_t ui8_max_speed, ui
                                         (uint32_t) *ui8_target_current,
                                         (uint32_t) 0));
 }
-
 
 static void apply_throttle(uint8_t ui8_throttle_value, uint8_t *ui8_target_current)
 {
@@ -772,7 +768,6 @@ static void apply_throttle(uint8_t ui8_throttle_value, uint8_t *ui8_target_curre
     }
   }
 }
-
 
 static void apply_temperature_limiting(uint8_t *ui8_target_current)
 {
@@ -905,7 +900,6 @@ static void apply_cruise(uint8_t *ui8_target_current)
                                           (uint32_t) 255)); // maximum target PWM
 }
 
-
 static void boost_run_statemachine(void)
 {
   if(m_configuration_variables.ui8_startup_motor_power_boost_time > 0)
@@ -1037,6 +1031,7 @@ static void apply_boost_fade_out(uint8_t *ui8_target_current)
   }
 }
 
+#ifdef PLATFORM_STM
 
 static void read_pas_cadence(void)
 {

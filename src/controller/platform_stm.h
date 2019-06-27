@@ -7,6 +7,8 @@
 #include "stm8s.h"
 #include "stm8s_adc1.h"
 #include "stm8s_it.h"
+#include "stm8s_flash.h"
+#include "stm8s_tim1.h"
 
 #define ATTACH_INTERRUPT(PORT, PIN, EVENT, INT_PORT, HANDLER)    \
   GPIO_Init(PORT,PIN, GPIO_MODE_IN_FL_IT);                       \
