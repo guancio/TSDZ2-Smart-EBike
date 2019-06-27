@@ -6,11 +6,9 @@
  * Released under the GPL License, Version 3
  */
 
-#ifndef _PINS_H_
-#define _PINS_H_
+#ifndef _PINS_STM_H_
+#define _PINS_STM_H_
 
-#include "platform.h"
-#ifdef PLATFORM_STM
 #include "stm8s_gpio.h"
 
 /* Connections:
@@ -123,21 +121,10 @@
 #define BATTERY_CURRENT__PORT     GPIOB
 #define BATTERY_CURRENT__PIN      GPIO_PIN_5
 
-#endif
+// for AIN6: 0x53E0 + 2*6 = 0x53E8
+#define UI8_ADC_BATTERY_VOLTAGE  (0x53EC)) // AIN6
+#define UI8_ADC_BATTERY_CURRENT	 (0x53EA)) // AIN5
+#define UI8_ADC_THROTTLE	 (0x53EE)) // AIN7
+#define UI8_ADC_TORQUE_SENSOR	 (0x53E8)) // AIN4
 
-#ifdef PLATFORM_ARDUINO
-/* Connections:
- *
- * PIN                | IN/OUT|Function
- * ----------------------------------------------------------
- * PIN2               | in  | brake
- * PIN44              | out | lights. Enable/disable 5V output of the circuit that powers the lights wire of 6V.
- * A3                 | in  | analog throttle
- */
-
-#define BRAKE__PIN                2
-#define LIGHTS__PIN                44
-#define THROTTLE__PIN              A3
-#endif
-
-#endif /* _PINS_H_ */
+#endif /* _PINS_STM_H_ */

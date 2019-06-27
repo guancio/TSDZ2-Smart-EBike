@@ -1,6 +1,5 @@
-extern "C" {
-  #include "platform.h"
-}
+#include "platform.h"
+
 #include <EEPROM.h>
 
 uint8_t EEPROM_READ(int address)

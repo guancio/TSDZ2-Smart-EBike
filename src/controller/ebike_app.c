@@ -10,11 +10,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "platform.h"
-
-#ifdef PLATFORM_STM
-#include "stm8s.h"
-#include "stm8s_gpio.h"
-#endif
 #include "main.h"
 #include "interrupts.h"
 #include "adc.h"
@@ -1114,11 +1109,11 @@ static void torque_sensor_read(void)
 static void throttle_read (void)
 {
   // map value from 0 up to 255
-  ui8_throttle =  (uint8_t) (map (ui16_adc_read_throttle_10b(),
-                                 ADC_THROTTLE_MIN_VALUE,
-                                 ADC_THROTTLE_MAX_VALUE,
-                                 (uint8_t) 0,
-                                 (uint8_t) 255));
+  ui8_throttle =  (uint8_t) (map ((uint8_t)ui8_adc_read_throttle(),
+                                  (uint8_t)ADC_THROTTLE_MIN_VALUE,
+                                  (uint8_t)ADC_THROTTLE_MAX_VALUE,
+                                  (uint8_t) 0,
+                                  (uint8_t) 255));
 }
 
 #ifdef PLATFORM_STM

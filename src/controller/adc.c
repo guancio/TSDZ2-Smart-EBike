@@ -9,14 +9,6 @@
 #include "platform.h"
 #include <stdint.h>
 #include <stdio.h>
-#ifdef PLATFORM_STM
-#include "stm8s.h"
-#include "stm8s_adc1.h"
-#endif
-#ifdef PLATFORM_ARDUINO
-#include <Arduino.h>
-#endif
-#include "pins.h"
 #include "adc.h"
 #include "ebike_app.h"
 #include "motor.h"
@@ -50,7 +42,7 @@ void adc_init (void)
   ADC1_Cmd(ENABLE);
 #endif
 #ifdef PLATFORM_ARDUINO
-  pinMode(THROTTLE__PIN, INPUT);
+  pinMode(UI8_ADC_THROTTLE, INPUT);
 #endif
 
 #ifdef PLATFORM_STM
@@ -130,41 +122,22 @@ uint16_t ui16_adc_read_battery_current_10b (void)
 
 uint16_t ui16_adc_read_torque_sensor_10b (void)
 {
-  uint16_t temph;
-  uint8_t templ;
-
-  templ = *(uint8_t*)(0x53E9);
-  temph = *(uint8_t*)(0x53E8);
-
-  return ((uint16_t) temph) << 2 | ((uint16_t) templ);
+  RETURN_READ_ANALOG_16(UI8_ADC_TORQUE_SENSOR);
 }
 #endif
 
 uint16_t ui16_adc_read_throttle_10b (void)
 {
-#ifdef PLATFORM_STM
-  uint16_t temph;
-  uint8_t templ;
-
-  templ = *(uint8_t*)(0x53EF);
-  temph = *(uint8_t*)(0x53EE);
-
-  return ((uint16_t) temph) << 2 | ((uint16_t) templ);
-#endif
-#ifdef PLATFORM_ARDUINO
-  return analogRead(THROTTLE__PIN);
-#endif
+  RETURN_READ_ANALOG_16(UI8_ADC_THROTTLE);
 }
+uint8_t ui8_adc_read_throttle(void) {
+  RETURN_READ_ANALOG_8(UI8_ADC_THROTTLE);
+}
+
 
 #ifdef PLATFORM_STM
 uint16_t ui16_adc_read_battery_voltage_10b (void)
 {
-  uint16_t temph;
-  uint8_t templ;
-
-  templ = *(uint8_t*)(0x53ED);
-  temph = *(uint8_t*)(0x53EC);
-
-  return ((uint16_t) temph) << 2 | ((uint16_t) templ);
+  RETURN_READ_ANALOG_16(UI8_ADC_BATTERY_VOLTAGE);
 }
 #endif

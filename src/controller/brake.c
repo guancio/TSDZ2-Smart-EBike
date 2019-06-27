@@ -8,19 +8,8 @@
 
 #include <stdint.h>
 #include "platform.h"
-#ifdef PLATFORM_STM
-  #include "stm8s.h"
-  #include "stm8s_it.h"
-#endif
-#ifdef PLATFORM_ARDUINO
-  #include <Arduino.h>
-  #define __interrupt(A)
-#endif
-#include "pins.h"
-#ifdef PLATFORM_STM
-  #include "main.h"
-  #include "interrupts.h"
-#endif
+#include "main.h"
+#include "interrupts.h"
 #include "brake.h"
 #include "motor.h"
 
